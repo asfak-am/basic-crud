@@ -14,7 +14,7 @@
             @endforelse
         </ul>
 
-        <a href="{{ route('course_teachers.index') }}" class="btn btn-secondary btn-xs py-0 mx-1">Back</a>
+        <a href="{{ route('course_teachers.index') }}" class="btn btn-primary btn-xs py-0 mx-1 my-2">Back</a>
     </div>
 </div>
 @endsection

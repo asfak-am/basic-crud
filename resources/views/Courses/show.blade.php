@@ -19,7 +19,7 @@
         </div>
 
 
-        <a href="{{route('courses.index')}}" class="btn btn-primary">Back</a>
+        <a href="{{route('courses.index')}}" class="btn btn-primary btn-xs py-0 mx-1 my-2">Back</a>
     </div>
 </div>
 @endsection

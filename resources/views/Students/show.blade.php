@@ -23,7 +23,7 @@
             <input type="date" class="form-control" value="{{$student->joining_date}}" readonly>
         </div>
 
-        <a href="{{route('students.index')}}" class="btn btn-primary">Back</a>
+        <a href="{{route('students.index')}}" class="btn btn-primary btn-xs py-0 mx-1 my-2">Back</a>
     </div>
 </div>
 @endsection

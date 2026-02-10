@@ -39,8 +39,8 @@
                 @enderror
             </div>
 
-            <button type="submit" class="btn btn-primary">Assign</button>
-            <a href="{{ route('course_teachers.index') }}" class="btn btn-secondary">Back</a>
+            <button type="submit" class="btn btn-primary btn-xs py-0 mx-1 my-2">Assign</button>
+            <a href="{{ route('course_teachers.index') }}" class="btn btn-secondary btn-xs py-0 mx-1 my-2">Back</a>
         </form>
     </div>
 </div>

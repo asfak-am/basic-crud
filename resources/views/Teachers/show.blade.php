@@ -23,7 +23,7 @@
             <input type="text" class="form-control" value="{{$teacher->department}}" readonly>
         </div>
 
-        <a href="{{route('teachers.index')}}" class="btn btn-primary">Back</a>
+        <a href="{{route('teachers.index')}}" class="btn btn-primary btn-xs py-0 mx-1 my-2">Back</a>
     </div>
 </div>
 @endsection
