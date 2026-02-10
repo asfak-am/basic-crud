@@ -17,7 +17,8 @@
                     <table class="table table-responsive table-bordered table-stripped" style="margin-top:10px;">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                {{-- sample --}}
+                                <th>##</th>
                                 <th>Name</th>
                                 <th>Code</th>
                                 <th>Credits</th>
