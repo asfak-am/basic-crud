@@ -12,7 +12,7 @@ class EnrollmentController extends Controller
      */
     public function index()
     {
-        $enrollments = \App\Models\Enrollment::with(['student', 'course'])->paginate(10);
+        $enrollments = \App\Models\Enrollment::with(['student', 'course'])->paginate(8);
         return view('Enrollments.index', compact('enrollments'));
     }
 

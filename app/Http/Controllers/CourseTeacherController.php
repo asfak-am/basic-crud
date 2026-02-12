@@ -15,7 +15,7 @@ class CourseTeacherController extends Controller
     public function index()
     {
         // Get all courses with their assigned teachers
-        $courses = Course::with('teachers')->paginate(10);
+        $courses = Course::with('teachers')->paginate(8);
         return view('course_teachers.index', compact('courses'));
     }
 

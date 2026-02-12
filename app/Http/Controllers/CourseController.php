@@ -13,7 +13,7 @@ class CourseController extends Controller
      */
     public function index(Request $request)
     {
-        $courses = Course::paginate(10);
+        $courses = Course::paginate(8);
         return view('Courses.index', compact('courses'));
     }
 

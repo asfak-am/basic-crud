@@ -104,11 +104,23 @@
                         <i class="bi bi-list"></i>
                     </button>
 
-                    <h3 class="mb-0">Dashboard</h3>
+                    @php
+                        $routeName = optional(request()->route())->getName();
+                        $titleMap = [
+                            'home' => 'Dashboard',
+                            'students.index' => 'Students Dashboard',
+                            'teachers.index' => 'Teachers Dashboard',
+                            'courses.index' => 'Courses Dashboard',
+                            'enrollments.index' => 'Enrollments Dashboard',
+                            'course_teachers.index' => 'Assignments Dashboard',
+                        ];
+                        $title = $titleMap[$routeName] ?? 'Dashboard';
+                    @endphp
+                    <h3 class="mb-3 {{ request()->routeIs('home') ? 'active' : '' }}">{{ $title }}</h3>
                 </div>
 
                 <!-- Right -->
-                <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3 mb-3">
                     <!-- Desktop search -->
                     <input type="search" class="form-control search-input-dark d-none d-md-block"
                         placeholder="Search here...">
