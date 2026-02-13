@@ -85,6 +85,34 @@
         .sidebar::-webkit-scrollbar-thumb:hover {
             background: #2a4070;
         }
+
+         .search-input {
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        font-size: 14px;
+        padding: 10px 15px;
+        border-radius: 6px;
+    }
+
+    .search-input::placeholder {
+        font-size: 13px;
+        color: #6c757d;
+        font-weight: 400;
+    }
+
+    .search-input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    }
+
+    .btn-group-sm .btn {
+        padding: 4px 8px;
+        border-radius: 6px !important;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
     </style>
 </head>
 
@@ -134,7 +162,7 @@
 
     <!-- Desktop Sidebar (Fixed) -->
     <aside class="sidebar p-3 d-none d-md-block">
-        <h4 class="text-white mb-4">Student Management System</h4>
+        <h4 class="text-white h5 mb-4">Student Management System</h4>
         <nav class="d-grid gap-2">
             <a class="{{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
                 <i class="bi bi-grid"></i> Dashboard
@@ -205,23 +233,8 @@
 
             <!-- Right -->
             <div class="d-flex align-items-center gap-3 mb-3">
-              <!-- Search Form -->
-                    <form action="{{ route('students.index') }}" method="GET" class="my-3">
-                        <div class="input-group">
-                            <input type="text" name="search" class="form-control"
-                                placeholder="Search by name, email, or phone..." value="{{ request()->get('search') }}">
-                            <button class="btn btn-primary btn-xs py-0" type="submit">
-                                <i class="bi bi-search"></i> Search
-                            </button>
-                            @if (request()->get('search'))
-                                <a href="{{ route('students.index') }}" class="btn btn-secondary">
-                                    <i class="bi bi-x-circle"></i> Clear
-                                </a>
-                            @endif
-                        </div>
-                    </form>
-
-                <img src="https://i.pravatar.cc/44?img=7" class="rounded-circle">
+                <span class="badge bg-dark rounded">Admin</span>
+                <img src="https://i.pravatar.cc/44?img=8" class="rounded-circle">
             </div>
 
         </header>

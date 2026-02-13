@@ -1,73 +1,125 @@
 @extends('layouts.app')
 @section('content')
     @if (session()->has('success'))
-        <div class="alert alert-success">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session()->get('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
     <div class="row">
         <div class="col-md-12">
             <div class="card mb-2">
-
                 <div class="card-body">
-                    <strong>Student List</strong>
-                    <a href="{{ route('students.create', ['page' => request()->get('page', 1)]) }}"
-                        class="btn btn-primary btn-xs float-end py-0">
-                        Create Student
-                    </a>
-                    <table class="table table-responsive table-bordered table-stripped" style="margin-top:10px;">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Joining Date</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($students as $key => $student)
+                    <!-- Header with Title and Create Button -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <strong>Student List</strong>
+                        <a href="{{ route('students.create', ['page' => request()->get('page', 1), 'search' => request()->get('search')]) }}"
+                            class="btn btn-primary btn-sm px-3 rounded">
+                            <i class="bi bi-plus-circle"></i> Create Student
+                        </a>
+                    </div>
+
+                    <!-- Search Form -->
+                    <form action="{{ route('students.index') }}" method="GET" class="mb-3">
+                        <div class="row g-2">
+                            <div class="col-md-8 col-lg-9">
+                                <input type="text"
+                                       name="search"
+                                       class="form-control search-input-sm"
+                                       placeholder="Search by name, email or phone"
+                                       value="{{ request()->get('search') }}">
+                            </div>
+                            <div class="col-md-4 col-lg-3">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-dark  flex-grow-1" type="submit">
+                                        <i class="bi bi-search"></i> Search
+                                    </button>
+                                    @if (request()->get('search'))
+                                        <a href="{{ route('students.index') }}"
+                                           class="btn btn-secondary"
+                                           title="Clear search">
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
                                 <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                    <td>{{ $student->name }}</td>
-                                    <td>{{ $student->email }}</td>
-                                    <td>{{ $student->phone }}</td>
-                                    <td>{{ $student->joining_date }}</td>
-                                    <td>
-                                        <div class="d-flex">
-                                            <a href="{{ route('students.show', ['id' => $student->id, 'page' => request()->get('page', 1), 'search' => request()->get('search')]) }}"
-                                                class="btn btn-primary btn-xs py-0 mx-1">
-                                                Show
-                                            </a>
-                                            <a href="{{ route('students.edit', ['id' => $student->id, 'page' => request()->get('page', 1), 'search' => request()->get('search')]) }}"
-                                                class="btn btn-warning btn-xs py-0 mx-1">
-                                                Edit
-                                            </a>
-                                            <form action="{{ route('students.destroy', $student->id) }}" method="POST"
-                                                onsubmit="return confirm('Are you sure you want to delete this student?');">
-                                                @method('DELETE')
-                                                @csrf
-                                                <input type="hidden" name="page"
-                                                    value="{{ request()->get('page', 1) }}">
-                                                <input type="hidden" name="search"
-                                                    value="{{ request()->get('search') }}">
-                                                <button type="submit" class="btn btn-danger btn-xs py-0">Delete</button>
-                                            </form>
-                                        </div>
-                                    </td>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Joining Date</th>
+                                    <th style="width: 200px;">Action</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @forelse ($students as $key => $student)
+                                    <tr>
+                                        <td>{{ $students->firstItem() + $key }}</td>
+                                        <td>{{ $student->name }}</td>
+                                        <td>{{ $student->email }}</td>
+                                        <td>{{ $student->phone }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($student->joining_date)->format('M d, Y') }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm gap-3" role="group">
+                                                <a href="{{ route('students.show', ['id' => $student->id, 'page' => request()->get('page', 1), 'search' => request()->get('search')]) }}"
+                                                    class="btn btn-info btn-sm">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{{ route('students.edit', ['id' => $student->id, 'page' => request()->get('page', 1), 'search' => request()->get('search')]) }}"
+                                                    class="btn btn-warning btn-sm">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <form action="{{ route('students.destroy', $student->id) }}"
+                                                      method="POST"
+                                                      class="d-inline"
+                                                      onsubmit="return confirm('Are you sure you want to delete this student?');">
+                                                    @method('DELETE')
+                                                    @csrf
+                                                    <input type="hidden" name="page" value="{{ request()->get('page', 1) }}">
+                                                    <input type="hidden" name="search" value="{{ request()->get('search') }}">
+                                                    <button type="submit" class="btn btn-danger btn-sm">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">
+                                            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                            <p class="mt-2">No students found</p>
+                                            @if(request()->get('search'))
+                                                <a href="{{ route('students.index') }}" class="btn btn-sm btn-primary">
+                                                    Clear Search
+                                                </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <nav aria-label="Page navigation example">
-        {{ $students->links('pagination::bootstrap-5') }}
-    </nav>
+
+    <!-- Pagination -->
+    @if($students->hasPages())
+        <nav aria-label="Page navigation">
+            {{ $students->links('pagination::bootstrap-5') }}
+        </nav>
+    @endif
 
     <!-- Create Student Modal -->
     <div class="modal fade" id="createStudentModal" tabindex="-1" aria-labelledby="createStudentModalLabel"
@@ -86,7 +138,7 @@
                         <div class="form-group mb-3">
                             <label for="create_name">Name</label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                value="{{ old('name') }}" name="name" id="create_name">
+                                value="{{ old('name') }}" name="name" id="create_name" required>
                             @error('name')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -95,7 +147,7 @@
                         <div class="form-group mb-3">
                             <label for="create_email">Email</label>
                             <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                value="{{ old('email') }}" name="email" id="create_email">
+                                value="{{ old('email') }}" name="email" id="create_email" required>
                             @error('email')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -104,7 +156,7 @@
                         <div class="form-group mb-3">
                             <label for="create_phone">Phone</label>
                             <input type="text" class="form-control @error('phone') is-invalid @enderror"
-                                value="{{ old('phone') }}" name="phone" id="create_phone">
+                                value="{{ old('phone') }}" name="phone" id="create_phone" required>
                             @error('phone')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -121,8 +173,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Create</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Create</button>
                     </div>
                 </form>
             </div>
@@ -148,7 +200,7 @@
                             <div class="form-group mb-3">
                                 <label for="edit_name">Name</label>
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                    name="name" id="edit_name" value="{{ old('name', $editStudent->name) }}">
+                                    name="name" id="edit_name" value="{{ old('name', $editStudent->name) }}" required>
                                 @error('name')
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
@@ -157,7 +209,7 @@
                             <div class="form-group mb-3">
                                 <label for="edit_email">Email</label>
                                 <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                    name="email" id="edit_email" value="{{ old('email', $editStudent->email) }}">
+                                    name="email" id="edit_email" value="{{ old('email', $editStudent->email) }}" required>
                                 @error('email')
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
@@ -166,7 +218,7 @@
                             <div class="form-group mb-3">
                                 <label for="edit_phone">Phone</label>
                                 <input type="text" class="form-control @error('phone') is-invalid @enderror"
-                                    name="phone" id="edit_phone" value="{{ old('phone', $editStudent->phone) }}">
+                                    name="phone" id="edit_phone" value="{{ old('phone', $editStudent->phone) }}" required>
                                 @error('phone')
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
@@ -183,9 +235,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary btn-sm"
-                                data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Update</button>
                         </div>
                     </form>
                 @endif
@@ -204,33 +255,37 @@
                 </div>
                 @if (isset($showStudent))
                     <div class="modal-body">
-                        <div class="form-group mb-3">
-                            <label for="show_name">Name</label>
-                            <input type="text" class="form-control" id="show_name" value="{{ $showStudent->name }}"
-                                readonly>
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label fw-bold">Name:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext">{{ $showStudent->name }}</p>
+                            </div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label for="show_email">Email</label>
-                            <input type="email" class="form-control" id="show_email"
-                                value="{{ $showStudent->email }}" readonly>
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label fw-bold">Email:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext">{{ $showStudent->email }}</p>
+                            </div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label for="show_phone">Phone</label>
-                            <input type="text" class="form-control" id="show_phone"
-                                value="{{ $showStudent->phone }}" readonly>
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label fw-bold">Phone:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext">{{ $showStudent->phone }}</p>
+                            </div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label for="show_joining_date">Joining date</label>
-                            <input type="date" class="form-control" id="show_joining_date"
-                                value="{{ $showStudent->joining_date }}" readonly>
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label fw-bold">Joining Date:</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-plaintext">{{ \Carbon\Carbon::parse($showStudent->joining_date)->format('M d, Y') }}</p>
+                            </div>
                         </div>
                     </div>
                 @endif
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -264,20 +319,23 @@
     @endif
 
     <script>
-        // Redirect to index when any modal is hidden, preserving pagination
+        // Redirect to index when any modal is hidden, preserving pagination and search
         document.querySelectorAll('.modal').forEach(function(modal) {
             modal.addEventListener('hidden.bs.modal', function() {
                 var currentPath = window.location.pathname;
                 var indexPath = '{{ route('students.index') }}';
 
-                // Check if we're not already on the index page
                 if (currentPath !== indexPath) {
-                    // Get the page from URL
                     var urlParams = new URLSearchParams(window.location.search);
                     var page = urlParams.get('page') || '{{ request()->get('page', 1) }}';
+                    var search = urlParams.get('search') || '{{ request()->get('search') }}';
 
-                    // Redirect to index with page parameter
-                    window.location.href = indexPath + '?page=' + page;
+                    var redirectUrl = indexPath + '?page=' + page;
+                    if (search) {
+                        redirectUrl += '&search=' + encodeURIComponent(search);
+                    }
+
+                    window.location.href = redirectUrl;
                 }
             });
         });
