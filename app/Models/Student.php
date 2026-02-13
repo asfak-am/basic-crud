@@ -13,7 +13,14 @@ class Student extends Model
         'joining_date',
     ];
 
-    
+     public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('email', 'LIKE', "%{$search}%")
+              ->orWhere('phone', 'LIKE', "%{$search}%");
+        });
+    }
 
     public function enrollments()
     {

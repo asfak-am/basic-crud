@@ -8,90 +8,100 @@ use App\Models\Student;
 
 class StudentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $students = Student::paginate(8);
-        return view('Students.index', compact('students'));
+        $search = $request->get('search');
+
+        $students = Student::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(8)->appends(['search' => $search]);
+
+        return view('students.index', compact('students', 'search'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(Request $request)
     {
-        return view('Students.create');
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
+
+        $students = Student::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(10)->appends(['search' => $search, 'page' => $page]);
+
+        $showCreateModal = true;
+        return view('students.index', compact('students', 'showCreateModal', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:students,email',
-            'phone' => 'required|numeric|unique:students,phone',
-            'joining_date' => 'required|date',
+            'phone' => 'required|string|max:20',
+            'joining_date' => 'required|date|date_format:Y-m-d|before_or_equal:today',
         ]);
 
-        Student::create($request->all());
+        Student::create($validated);
 
-        return redirect()->route('students.index')
-                         ->with('success', 'Student created successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('students.index', ['page' => $page, 'search' => $search])->with('success', 'Student created successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Request $request, $id)
     {
-        $student = Student::find($id);
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
 
-        return view('Students.show', compact('student'));
+        $students = Student::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(10)->appends(['search' => $search, 'page' => $page]);
+
+        $showStudent = Student::findOrFail($id);
+        return view('students.index', compact('students', 'showStudent', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Request $request, $id)
     {
-        $student = Student::find($id);
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
 
-        return view('Students.edit', compact('student'));
+        $students = Student::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(10)->appends(['search' => $search, 'page' => $page]);
 
+        $editStudent = Student::findOrFail($id);
+        return view('students.index', compact('students', 'editStudent', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
+        $student = Student::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:students,email,' . $id,
-            'phone' => 'required|numeric|unique:students,phone,' . $id,
-            'joining_date' => 'required|date',
+            'phone' => 'required|string|max:20',
+            'joining_date' => 'required|date|date_format:Y-m-d|before_or_equal:today',
         ]);
 
-        $student = Student::find($id);
-        $student->update($request->all());
+        $student->update($validated);
 
-        return redirect()->route('students.index')
-                         ->with('success', 'Student updated successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('students.index', ['page' => $page, 'search' => $search])->with('success', 'Student updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Request $request, $id)
     {
-        $student = Student::find($id);
+        $student = Student::findOrFail($id);
         $student->delete();
 
-        return redirect()->route('students.index')
-                         ->with('success', 'Student deleted successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('students.index', ['page' => $page, 'search' => $search])->with('success', 'Student deleted successfully!');
     }
 }
