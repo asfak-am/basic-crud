@@ -11,41 +11,50 @@
         <div class="col-md-12">
             <div class="card mb-2">
                 <div class="card-body">
-                    <!-- Header with Title and Create Button -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <strong>Student List</strong>
-                        <a href="{{ route('students.create', ['page' => request()->get('page', 1), 'search' => request()->get('search')]) }}"
-                            class="btn btn-primary btn-sm px-3 rounded">
-                            <i class="bi bi-plus-circle"></i> Create Student
-                        </a>
-                    </div>
+                   <!-- Header with Title and Create Button -->
+<div class="section-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="section-title mb-1">Student List</h5>
+            <p class="section-subtitle mb-0">Manage all students</p>
+        </div>
+        <a href="{{ route('students.create', ['page' => request()->get('page', 1), 'search' => request()->get('search')]) }}"
+            class="btn btn-primary btn-create">
+            <i class="bi bi-plus-circle me-1"></i>
+            <span class="d-none d-sm-inline">Create Student</span>
+            <span class="d-inline d-sm-none">Add</span>
+        </a>
+    </div>
+</div>
 
-                    <!-- Search Form -->
-                    <form action="{{ route('students.index') }}" method="GET" class="mb-3">
-                        <div class="row g-2">
-                            <div class="col-md-8 col-lg-9">
-                                <input type="text"
-                                       name="search"
-                                       class="form-control search-input-sm"
-                                       placeholder="Search by name, email or phone"
-                                       value="{{ request()->get('search') }}">
-                            </div>
-                            <div class="col-md-4 col-lg-3">
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-outline-dark  flex-grow-1" type="submit">
-                                        <i class="bi bi-search"></i> Search
-                                    </button>
-                                    @if (request()->get('search'))
-                                        <a href="{{ route('students.index') }}"
-                                           class="btn btn-secondary"
-                                           title="Clear search">
-                                            <i class="bi bi-x-circle"></i>
-                                        </a>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+<!-- Search Form -->
+<form action="{{ route('students.index') }}" method="GET" class="search-section mb-4">
+    <div class="row g-2 align-items-center">
+        <div class="col-md-8 col-lg-9">
+            <div class="search-input-wrapper">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text"
+                       name="search"
+                       class="form-control search-input-field"
+                       placeholder="Search by name, email or phone"
+                       value="{{ request()->get('search') }}">
+                @if (request()->get('search'))
+                    <a href="{{ route('students.index') }}"
+                       class="clear-search"
+                       title="Clear search">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </a>
+                @endif
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <button class="btn btn-search w-100" type="submit">
+                <i class="bi bi-search me-1"></i>
+                <span>Search</span>
+            </button>
+        </div>
+    </div>
+</form>
 
                     <!-- Table -->
                     <div class="table-responsive">

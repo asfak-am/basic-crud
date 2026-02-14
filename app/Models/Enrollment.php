@@ -12,6 +12,16 @@ class Enrollment extends Model
         'enrolled_at',
     ];
 
+      public function scopeSearch($query, $search)
+    {
+        return $query->whereHas('student', function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%");
+        })->orWhereHas('course', function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('code', 'LIKE', "%{$search}%");
+        });
+    } 
+
     public function student()
     {
         return $this->belongsTo(Student::class);

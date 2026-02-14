@@ -9,96 +9,134 @@ use App\Models\Teacher;
 
 class CourseTeacherController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        // Get all courses with their assigned teachers
-        $courses = Course::with('teachers')->paginate(8);
-        return view('course_teachers.index', compact('courses'));
+        $search = $request->get('search');
+
+        $courses = Course::with('teachers')
+            ->when($search, function ($query) use ($search) {
+                return $query->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('code', 'LIKE', "%{$search}%")
+                    ->orWhereHas('teachers', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', "%{$search}%");
+                    });
+            })
+            ->paginate(10)
+            ->appends(['search' => $search]);
+
+        return view('course_teachers.index', compact('courses', 'search'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(Request $request)
     {
-        $courses = Course::all();
-        $teachers = Teacher::all();
-        return view('course_teachers.create', compact('courses', 'teachers'));
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
+
+        $courses = Course::with('teachers')
+            ->when($search, function ($query) use ($search) {
+                return $query->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('code', 'LIKE', "%{$search}%")
+                    ->orWhereHas('teachers', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', "%{$search}%");
+                    });
+            })
+            ->paginate(10)
+            ->appends(['search' => $search, 'page' => $page]);
+
+        $allCourses = Course::all();
+        $allTeachers = Teacher::all();
+        $showCreateModal = true;
+
+        return view('course_teachers.index', compact('courses', 'allCourses', 'allTeachers', 'showCreateModal', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'course_id' => 'required|exists:courses,id',
             'teacher_ids' => 'required|array',
             'teacher_ids.*' => 'exists:teachers,id',
         ]);
 
-        $course = Course::findOrFail($request->course_id);
+        $course = Course::findOrFail($validated['course_id']);
+        $course->teachers()->sync($validated['teacher_ids']);
 
-        // Assign multiple teachers to the course without removing existing ones
-        $course->teachers()->syncWithoutDetaching($request->teacher_ids);
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
 
-        return redirect()->route('course_teachers.index')
-                        ->with('success', 'Teachers assigned successfully.');
+        return redirect()->route('course_teachers.index', ['page' => $page, 'search' => $search])
+            ->with('success', 'Teachers assigned successfully!');
     }
 
-    /**
-     * Display the specified course with its teachers.
-     */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $course = Course::with('teachers')->findOrFail($id);
-        return view('course_teachers.show', compact('course'));
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
+
+        $courses = Course::with('teachers')
+            ->when($search, function ($query) use ($search) {
+                return $query->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('code', 'LIKE', "%{$search}%")
+                    ->orWhereHas('teachers', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', "%{$search}%");
+                    });
+            })
+            ->paginate(10)
+            ->appends(['search' => $search, 'page' => $page]);
+
+        $showCourse = Course::with('teachers')->findOrFail($id);
+
+        return view('course_teachers.index', compact('courses', 'showCourse', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Show the form for editing the teachers of a course.
-     */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $course = Course::with('teachers')->findOrFail($id);
-        $teachers = Teacher::all();
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
 
-        return view('course_teachers.edit', compact('course', 'teachers'));
+        $courses = Course::with('teachers')
+            ->when($search, function ($query) use ($search) {
+                return $query->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('code', 'LIKE', "%{$search}%")
+                    ->orWhereHas('teachers', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', "%{$search}%");
+                    });
+            })
+            ->paginate(10)
+            ->appends(['search' => $search, 'page' => $page]);
+
+        $editCourse = Course::with('teachers')->findOrFail($id);
+        $allTeachers = Teacher::all();
+
+        return view('course_teachers.index', compact('courses', 'editCourse', 'allTeachers', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Update the assigned teachers for a course.
-     */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'teacher_ids' => 'required|array',
+        $validated = $request->validate([
+            'teacher_ids' => 'array',
             'teacher_ids.*' => 'exists:teachers,id',
         ]);
 
         $course = Course::findOrFail($id);
+        $course->teachers()->sync($validated['teacher_ids'] ?? []);
 
-        // Update teachers: this will replace existing assignments
-        $course->teachers()->sync($request->teacher_ids);
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
 
-        return redirect()->route('course_teachers.index')
-                        ->with('success', 'Course teachers updated successfully.');
+        return redirect()->route('course_teachers.index', ['page' => $page, 'search' => $search])
+            ->with('success', 'Teachers updated successfully!');
     }
 
-    /**
-     * Remove all teachers from a course or delete a course-teacher assignment.
-     */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $course = Course::findOrFail($id);
-
-        // Remove all teacher assignments for this course
         $course->teachers()->detach();
 
-        return redirect()->route('course_teachers.index')
-                        ->with('success', 'All teachers removed from the course.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('course_teachers.index', ['page' => $page, 'search' => $search])
+            ->with('success', 'All teachers removed from course successfully!');
     }
 }

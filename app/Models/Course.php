@@ -15,6 +15,14 @@ class Course extends Model
         'credits',
     ];
 
+     public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('code', 'LIKE', "%{$search}%");
+        });
+    }
+
     public function enrollments()
     {
         return $this->hasMany(Enrollment::class);
@@ -22,6 +30,6 @@ class Course extends Model
 
     public function teachers()
     {
-        return $this->belongsToMany(Teacher::class, 'course_teachers', 'teacher_id', 'course_id');
+        return $this->belongsToMany(Teacher::class, 'course_teachers', 'course_id', 'teacher_id');
     }
 }

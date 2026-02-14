@@ -4,87 +4,124 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Enrollment;
+use App\Models\Student;
+use App\Models\Course;
 
 class EnrollmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $enrollments = \App\Models\Enrollment::with(['student', 'course'])->paginate(8);
-        return view('Enrollments.index', compact('enrollments'));
+        $search = $request->get('search');
+
+        $enrollments = Enrollment::with(['student', 'course'])
+            ->when($search, function ($query) use ($search) {
+                return $query->search($search);
+            })
+            ->paginate(10)
+            ->appends(['search' => $search]);
+
+        return view('enrollments.index', compact('enrollments', 'search'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(Request $request)
     {
-        $students = \App\Models\Student::all();
-        $courses = \App\Models\Course::all();
-        return view('Enrollments.create', compact('students', 'courses'));
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
+
+        $enrollments = Enrollment::with(['student', 'course'])
+            ->when($search, function ($query) use ($search) {
+                return $query->search($search);
+            })
+            ->paginate(10)
+            ->appends(['search' => $search, 'page' => $page]);
+
+        $students = Student::all();
+        $courses = Course::all();
+        $showCreateModal = true;
+
+        return view('enrollments.index', compact('enrollments', 'students', 'courses', 'showCreateModal', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
             'course_id' => 'required|exists:courses,id',
         ]);
 
-        \App\Models\Enrollment::create($request->all());
+        Enrollment::create($validated);
 
-        return redirect()->route('enrollments.index')->with('success', 'Enrollment created successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('enrollments.index', ['page' => $page, 'search' => $search])
+            ->with('success', 'Enrollment created successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Request $request, $id)
     {
-        $enrollment = \App\Models\Enrollment::with(['student', 'course'])->findOrFail($id);
-        return view('Enrollments.show', compact('enrollment'));
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
+
+        $enrollments = Enrollment::with(['student', 'course'])
+            ->when($search, function ($query) use ($search) {
+                return $query->search($search);
+            })
+            ->paginate(10)
+            ->appends(['search' => $search, 'page' => $page]);
+
+        $showEnrollment = Enrollment::with(['student', 'course'])->findOrFail($id);
+
+        return view('enrollments.index', compact('enrollments', 'showEnrollment', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Request $request, $id)
     {
-        $enrollment = \App\Models\Enrollment::findOrFail($id);
-        $students = \App\Models\Student::all();
-        $courses = \App\Models\Course::all();
-        return view('Enrollments.edit', compact('enrollment', 'students', 'courses'));
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
+
+        $enrollments = Enrollment::with(['student', 'course'])
+            ->when($search, function ($query) use ($search) {
+                return $query->search($search);
+            })
+            ->paginate(10)
+            ->appends(['search' => $search, 'page' => $page]);
+
+        $editEnrollment = Enrollment::with(['student', 'course'])->findOrFail($id);
+        $students = Student::all();
+        $courses = Course::all();
+
+        return view('enrollments.index', compact('enrollments', 'editEnrollment', 'students', 'courses', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
+        $enrollment = Enrollment::findOrFail($id);
+
+        $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
             'course_id' => 'required|exists:courses,id',
         ]);
 
-        $enrollment = \App\Models\Enrollment::findOrFail($id);
-        $enrollment->update($request->all());
+        $enrollment->update($validated);
 
-        return redirect()->route('enrollments.index')->with('success', 'Enrollment updated successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('enrollments.index', ['page' => $page, 'search' => $search])
+            ->with('success', 'Enrollment updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Request $request, $id)
     {
-        $enrollment = \App\Models\Enrollment::findOrFail($id);
+        $enrollment = Enrollment::findOrFail($id);
         $enrollment->delete();
 
-        return redirect()->route('enrollments.index')->with('success', 'Enrollment deleted successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('enrollments.index', ['page' => $page, 'search' => $search])
+            ->with('success', 'Enrollment deleted successfully!');
     }
 }

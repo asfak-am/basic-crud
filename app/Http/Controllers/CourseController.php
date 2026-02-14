@@ -8,87 +8,98 @@ use App\Models\Course;
 
 class CourseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $courses = Course::paginate(8);
-        return view('Courses.index', compact('courses'));
+        $search = $request->get('search');
+
+        $courses = Course::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(8)->appends(['search' => $search]);
+
+        return view('Courses.index', compact('courses', 'search'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(Request $request)
     {
-        return view('Courses.create');
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
+
+        $courses = Course::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(8)->appends(['search' => $search, 'page' => $page]);
+
+        $showCreateModal = true;
+        return view('Courses.index', compact('courses', 'showCreateModal', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required',
             'code' => 'required|unique:courses,code',
-            'credits' => 'numeric',
+            'credits' => 'required|numeric',
         ]);
 
-        Course::create($request->all());
+        Course::create($validated);
 
-        return redirect()->route('courses.index')
-                         ->with('success', 'Course created successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('courses.index', ['page' => $page, 'search' => $search])->with('success', 'Course created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        $course = Course::find($id);
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
 
-        return view('Courses.show', compact('course'));
+        $courses = Course::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(8)->appends(['search' => $search, 'page' => $page]);
+
+        $showCourse = Course::findOrFail($id);
+        return view('Courses.index', compact('courses', 'showCourse', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Request $request, string $id)
     {
-        $course = Course::find($id);
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
 
-        return view('Courses.edit', compact('course'));
+        $courses = Course::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(8)->appends(['search' => $search, 'page' => $page]);
+
+        $editCourse = Course::findOrFail($id);
+        return view('Courses.index', compact('courses', 'editCourse', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        $request->validate([
+        $course = Course::findOrFail($id);
+
+        $validated = $request->validate([
             'name' => 'required',
             'code' => 'required|unique:courses,code,' . $id,
-            'credits' => 'numeric',
+            'credits' => 'required|numeric',
         ]);
 
-        $course = Course::find($id);
-        $course->update($request->all());
+        $course->update($validated);
 
-        return redirect()->route('courses.index')
-                         ->with('success', 'Course updated successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('courses.index', ['page' => $page, 'search' => $search])->with('success', 'Course updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
-        $course = Course::find($id);
+        $course = Course::findOrFail($id);
         $course->delete();
 
-        return redirect()->route('courses.index')
-                         ->with('success', 'Course deleted successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('courses.index', ['page' => $page, 'search' => $search])->with('success', 'Course deleted successfully.');
     }
 }

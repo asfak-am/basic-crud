@@ -8,89 +8,100 @@ use App\Models\Teacher;
 
 class TeacherController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $teachers = Teacher::paginate(8);
-        return view('Teachers.index', compact('teachers'));
+        $search = $request->get('search');
+
+        $teachers = Teacher::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(10)->appends(['search' => $search]);
+
+        return view('teachers.index', compact('teachers', 'search'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(Request $request)
     {
-        return view('Teachers.create');
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
+
+        $teachers = Teacher::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(10)->appends(['search' => $search, 'page' => $page]);
+
+        $showCreateModal = true;
+        return view('teachers.index', compact('teachers', 'showCreateModal', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:teachers,email',
-            'phone' => 'required|numeric|unique:teachers,phone',
-            'department' => 'string',
+            'phone' => 'required|string|max:20',
+            'department' => 'required|string|max:255',
         ]);
 
-        Teacher::create($request->all());
+        Teacher::create($validated);
 
-        return redirect()->route('teachers.index')
-                         ->with('success', 'Teacher created successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('teachers.index', ['page' => $page, 'search' => $search])->with('success', 'Teacher created successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Request $request, $id)
     {
-        $teacher = Teacher::find($id);
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
 
-        return view('Teachers.show', compact('teacher'));
+        $teachers = Teacher::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(10)->appends(['search' => $search, 'page' => $page]);
+
+        $showTeacher = Teacher::findOrFail($id);
+        return view('teachers.index', compact('teachers', 'showTeacher', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Request $request, $id)
     {
-        $teacher = Teacher::find($id);
+        $search = $request->get('search');
+        $page = $request->get('page', 1);
 
-        return view('Teachers.edit', compact('teacher'));
+        $teachers = Teacher::when($search, function ($query) use ($search) {
+            return $query->search($search);
+        })->paginate(10)->appends(['search' => $search, 'page' => $page]);
+
+        $editTeacher = Teacher::findOrFail($id);
+        return view('teachers.index', compact('teachers', 'editTeacher', 'search'))->with('currentPage', $page);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
+        $teacher = Teacher::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:teachers,email,' . $id,
-            'phone' => 'required|numeric|unique:teachers,phone,' . $id,
-            'department' => 'string',
+            'phone' => 'required|string|max:20',
+            'department' => 'required|string|max:255',
         ]);
 
-        $teacher = Teacher::find($id);
-        $teacher->update($request->all());
+        $teacher->update($validated);
 
-        return redirect()->route('teachers.index')
-                         ->with('success', 'Teacher updated successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('teachers.index', ['page' => $page, 'search' => $search])->with('success', 'Teacher updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Request $request, $id)
     {
-        $teacher = Teacher::find($id);
+        $teacher = Teacher::findOrFail($id);
         $teacher->delete();
 
-        return redirect()->route('teachers.index')
-                         ->with('success', 'Teacher deleted successfully.');
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+
+        return redirect()->route('teachers.index', ['page' => $page, 'search' => $search])->with('success', 'Teacher deleted successfully!');
     }
 }
