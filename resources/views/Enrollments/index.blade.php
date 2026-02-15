@@ -63,6 +63,7 @@
                                     <th>Student ID</th>
                                     <th>Course Name</th>
                                     <th>Course Code</th>
+                                    <th>Enrollment Date</th>
                                     <th style="width: 200px;">Action</th>
                                 </tr>
                             </thead>
@@ -74,6 +75,7 @@
                                         <td>{{ $enrollment->student->id }}</td>
                                         <td>{{ $enrollment->course->name }}</td>
                                         <td>{{ $enrollment->course->code }}</td>
+                                        <td>{{ $enrollment->created_at->format('d M Y') }}</td>
                                         <td>
                                             <div class="btn-group btn-group-sm gap-3" role="group">
                                                 <a href="{{ route('enrollments.show', ['id' => $enrollment->id, 'page' => request()->get('page', 1), 'search' => request()->get('search')]) }}"

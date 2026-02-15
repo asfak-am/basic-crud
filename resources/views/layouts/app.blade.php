@@ -3,11 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard | Admin</title>
+    <title>EnrollNet | Dashboard</title>
     <meta name="description" content="Modern admin dashboard built with Bootstrap 5">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -20,7 +21,7 @@
         }
 
         .sidebar {
-            width: 260px;
+            width: 20%;
             background: #0b1c39;
             min-height: 100vh;
             position: fixed;
@@ -29,8 +30,14 @@
             overflow-y: auto;
             z-index: 1000;
         }
-
         .sidebar a {
+            text-decoration: none;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sidebar nav a {
             color: #cfd8ff;
             text-decoration: none;
             display: flex;
@@ -47,7 +54,7 @@
         }
 
         .main-content {
-            margin-left: 260px;
+            margin-left: 20%;
             min-height: 100vh;
         }
 
@@ -66,24 +73,6 @@
         .search-input {
             background: #f1f3ff;
             border: none;
-        }
-
-        /* Custom scrollbar for sidebar */
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .sidebar::-webkit-scrollbar-track {
-            background: #0b1c39;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background: #1c2e5a;
-            border-radius: 10px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: #2a4070;
         }
 
         .search-input {
@@ -482,7 +471,7 @@
 
     <!-- Desktop Sidebar (Fixed) -->
     <aside class="sidebar p-3 d-none d-md-block">
-        <h4 class="text-white h5 p-2 mb-4"><i class="bi bi-buildings-fill me-2"></i>EnrollNet</h4>
+        <a href="{{ route('home') }}"> <h4 class="text-white h5 p-2 mb-4"><i class="bi bi-buildings-fill me-2"></i>EnrollNet</h4></a>
         <nav class="d-grid gap-2">
             <a class="{{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
                 <i class="bi bi-grid"></i> Dashboard

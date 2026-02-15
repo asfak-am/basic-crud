@@ -14,7 +14,7 @@
         <div class="card dashboard-card border-0 shadow-sm">
             <div class="card-body text-center">
                 <div class="icon-wrapper mb-3">
-                    <i class="bi bi-people-fill text-primary" style="font-size: 2.5rem;"></i>
+                    <i class="bi bi-people-fill text-primary" style="font-size: 2rem;"></i>
                 </div>
                 <h6 class="text-muted mb-2">Total Students</h6>
                 <h2 class="counter fw-bold text-primary mb-0" data-target="{{ $totalStudents }}">0</h2>
@@ -25,7 +25,7 @@
         <div class="card dashboard-card border-0 shadow-sm">
             <div class="card-body text-center">
                 <div class="icon-wrapper mb-3">
-                    <i class="bi bi-book-fill text-warning" style="font-size: 2.5rem;"></i>
+                    <i class="bi bi-book-fill text-warning" style="font-size: 2rem;"></i>
                 </div>
                 <h6 class="text-muted mb-2">Total Courses</h6>
                 <h2 class="counter fw-bold text-warning mb-0" data-target="{{ $totalCourses }}">0</h2>
@@ -36,7 +36,7 @@
         <div class="card dashboard-card border-0 shadow-sm">
             <div class="card-body text-center">
                 <div class="icon-wrapper mb-3">
-                    <i class="bi bi-clipboard-check-fill text-danger" style="font-size: 2.5rem;"></i>
+                    <i class="bi bi-clipboard-check-fill text-danger" style="font-size: 2rem;"></i>
                 </div>
                 <h6 class="text-muted mb-2">Total Enrollments</h6>
                 <h2 class="counter fw-bold text-danger mb-0" data-target="{{ $totalEnrollments }}">0</h2>
@@ -48,36 +48,7 @@
 <!-- Charts -->
 <section class="row g-4 mb-4">
     <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 pt-4 pb-3">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-bar-chart-fill text-primary me-2" style="font-size: 1.25rem;"></i>
-                    <h6 class="mb-0 fw-semibold">Enrollments per Course</h6>
-                </div>
-            </div>
-            <div class="card-body">
-                <canvas id="enrollmentChart" height="200"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 pt-4 pb-3">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-person-badge-fill text-danger me-2" style="font-size: 1.25rem;"></i>
-                    <h6 class="mb-0 fw-semibold">Courses per Teacher</h6>
-                </div>
-            </div>
-            <div class="card-body">
-                <canvas id="teacherChart" height="200"></canvas>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="row g-4">
-    <div class="col-md-12">
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm dashboard-card">
             <div class="card-header bg-white border-0 pt-4 pb-3">
                 <div class="d-flex align-items-center">
                     <i class="bi bi-graph-up text-success me-2" style="font-size: 1.25rem;"></i>
@@ -85,7 +56,36 @@
                 </div>
             </div>
             <div class="card-body">
-                <canvas id="enrollmentTrendChart" height="100"></canvas>
+                <canvas id="enrollmentTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm dashboard-card">
+            <div class="card-header bg-white border-0 pt-4 pb-3">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-bar-chart-fill text-primary me-2" style="font-size: 1.25rem;"></i>
+                    <h6 class="mb-0 fw-semibold">Enrollments per Course</h6>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="enrollmentChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm dashboard-card">
+            <div class="card-header bg-white border-0 pt-4 pb-3">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-person-badge-fill text-danger me-2" style="font-size: 1.25rem;"></i>
+                    <h6 class="mb-0 fw-semibold">Courses per Teacher</h6>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="teacherChart"></canvas>
             </div>
         </div>
     </div>
@@ -100,6 +100,7 @@
     .dashboard-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+        border:
     }
 
     .dashboard-card .card-body {
@@ -129,10 +130,6 @@
 
     .card-body {
         padding: 1.5rem;
-    }
-
-    canvas {
-        max-height: 300px;
     }
 </style>
 @endsection
